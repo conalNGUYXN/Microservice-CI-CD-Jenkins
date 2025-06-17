@@ -63,11 +63,11 @@ pipeline {
         stage('Deploy Microservices') {
             steps {
                 script {
-                    // Stop & remove old containers if they exist
-                    sh 'docker rm -f $(docker ps -q --filter ancestor=****/frontend:latest) || true'
-                    sh 'docker rm -f $(docker ps -q --filter ancestor=****/backend:latest) || true'
+                    // Remove old containers if they exist
+                    sh "docker rm -f \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/frontend:${IMAGE_TAG}) || true"
+                    sh "docker rm -f \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/backend:${IMAGE_TAG}) || true"
 
-                    // Run new containers
+                    // Run new containers (change 8082 to 8083 if needed)
                     echo 'Deploying frontend and backend services'
                     sh "docker run -d -p 8082:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
                     sh "docker run -d -p 3001:3000 ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
