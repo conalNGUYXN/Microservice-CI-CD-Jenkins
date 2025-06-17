@@ -63,6 +63,11 @@ pipeline {
         stage('Deploy Microservices') {
             steps {
                 script {
+                    // Stop & remove old containers if they exist
+                    sh 'docker rm -f frontend-container || true'
+                    sh 'docker rm -f backend-container || true'
+                    
+                    // Run new containers
                     echo 'Deploying frontend and backend services'
                     sh "docker run -d -p 8082:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
                     sh "docker run -d -p 3001:3000 ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
