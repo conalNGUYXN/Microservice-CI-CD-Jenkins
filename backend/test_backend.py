@@ -5,7 +5,7 @@ class TestBackendAPI(unittest.TestCase):
 
     def test_get_data(self):
         # URL of the API endpoint
-        url = "http://localhost:3000/data"
+        url = "http://localhost:3001/data"
         
         # Send a GET request to the backend API
         response = requests.get(url)
