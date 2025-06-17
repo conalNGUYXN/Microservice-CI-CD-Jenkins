@@ -64,9 +64,9 @@ pipeline {
             steps {
                 script {
                     // Stop & remove old containers if they exist
-                    sh 'docker rm -f frontend-container || true'
-                    sh 'docker rm -f backend-container || true'
-                    
+                    sh 'docker rm -f $(docker ps -q --filter ancestor=****/frontend:latest) || true'
+                    sh 'docker rm -f $(docker ps -q --filter ancestor=****/backend:latest) || true'
+
                     // Run new containers
                     echo 'Deploying frontend and backend services'
                     sh "docker run -d -p 8082:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
