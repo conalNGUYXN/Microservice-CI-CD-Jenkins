@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_USER = "${DOCKERHUB_CREDENTIALS_USR}"
+        DOCKERHUB_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
+        IMAGE_TAG = "latest"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,7 +23,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     script {
-                        bat 'docker build -t frontend:latest .'
+                        sh "docker build -t ${DOCKERHUB_USER}/frontend:${IMAGE_TAG} ."
                     }
                 }
             }
@@ -26,8 +33,18 @@ pipeline {
             steps {
                 dir('backend') {
                     script {
-                        bat 'docker build -t backend:latest .'
+                        sh "docker build -t ${DOCKERHUB_USER}/backend:${IMAGE_TAG} ."
                     }
+                }
+            }
+        }
+
+        stage('Push Docker Images to Docker Hub') {
+            steps {
+                script {
+                    sh "echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin"
+                    sh "docker push ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
+                    sh "docker push ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
                 }
             }
         }
@@ -37,7 +54,7 @@ pipeline {
                 dir('backend') {
                     script {
                         echo 'Running backend tests - Python-unittest for backend functionality'
-                        echo 'Test run sucessfully' 
+                        echo 'Test run successfully'
                     }
                 }
             }
@@ -47,8 +64,8 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying frontend and backend services'
-                    bat 'docker run -d -p 80:80 frontend:latest'
-                    bat 'docker run -d -p 3000:3000 backend:latest'
+                    sh "docker run -d -p 80:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
+                    sh "docker run -d -p 3000:3000 ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
                 }
             }
         }
