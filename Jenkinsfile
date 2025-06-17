@@ -8,6 +8,7 @@ pipeline {
         IMAGE_TAG = "latest"
 
         SONARQUBE_SERVER = "sonarqube"
+        SONARQUBE_AUTH_TOKEN = credentials('sonarqube')
     }
 
     stages {
