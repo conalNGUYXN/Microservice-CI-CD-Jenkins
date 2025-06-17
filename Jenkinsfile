@@ -66,7 +66,10 @@ pipeline {
                     // Remove old containers if they exist
                     sh "docker rm -f \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/frontend:${IMAGE_TAG}) || true"
                     sh "docker rm -f \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/backend:${IMAGE_TAG}) || true"
-
+                    
+                    sh "fuser -k 3001/tcp || true"
+                    sh "fuser -k 8082/tcp || true"
+                    
                     // Run new containers (change 8082 to 8083 if needed)
                     echo 'Deploying frontend and backend services'
                     sh "docker run -d -p 8082:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
