@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
         IMAGE_TAG = "latest"
 
-        SONARQUBE_SERVER = "SonarQube"
+        //SONARQUBE_SERVER = "SonarQube"
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv(SONARQUBE_SERVER) {
+                    withSonarQubeEnv('SonarQube') {
                         sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=Microservice-CI-CD-Jenkins \
