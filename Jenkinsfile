@@ -64,7 +64,7 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying frontend and backend services'
-                    sh "docker run -d -p 80:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
+                    sh "docker run -d -p 8081:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
                     sh "docker run -d -p 3000:3000 ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
                 }
             }
