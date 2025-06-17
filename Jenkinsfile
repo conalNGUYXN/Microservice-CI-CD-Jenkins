@@ -30,13 +30,15 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(SONARQUBE_SERVER) {
-                        sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=Microservice-CI-CD-Jenkins \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://54.86.39.158:9000 \
-                        -Dsonar.login=$SONARQUBE_AUTH_TOKEN
-                        '''
+                        withEnv(['PATH+SONAR=/opt/sonar-scanner/bin']) {
+                            sh '''
+                            sonar-scanner \
+                            -Dsonar.projectKey=Microservice-CI-CD-Jenkins \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://54.86.39.158:9000 \
+                            -Dsonar.login=$SONARQUBE_AUTH_TOKEN
+                           '''
+                        }
                     }
                 }
             }
