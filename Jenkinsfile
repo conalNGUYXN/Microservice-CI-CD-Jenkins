@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('a0d02fc9-ed65-4978-abff-2a9b01cc56ae')
         DOCKERHUB_USER = "${DOCKERHUB_CREDENTIALS_USR}"
         DOCKERHUB_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
         IMAGE_TAG = "latest"
