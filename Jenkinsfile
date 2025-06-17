@@ -6,6 +6,8 @@ pipeline {
         DOCKERHUB_USER = "${DOCKERHUB_CREDENTIALS_USR}"
         DOCKERHUB_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
         IMAGE_TAG = "latest"
+
+        SONARQUBE_SERVER = "SonarQube"
     }
 
     stages {
@@ -13,9 +15,39 @@ pipeline {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/conalNGUYXN/Microservice-CI-CD-Jenkins.git']]
+                    branches: [
+                        [name: '*/main']
+                    ],
+                    userRemoteConfigs: [
+                        [url: 'https://github.com/conalNGUYXN/Microservice-CI-CD-Jenkins.git']
+                    ]
                 ])
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv(SONARQUBE_SERVER) {
+                        sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=Microservice-CI-CD-Jenkins \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://54.86.39.158:9000 \
+                        -Dsonar.login=$SONARQUBE_AUTH_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 5, unit:'MINUTES') {
+                        waitForQualityGate(abortPipeline: true)
+                    }
+                }
             }
         }
 
@@ -63,15 +95,12 @@ pipeline {
         stage('Deploy Microservices') {
             steps {
                 script {
-                    
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/frontend:${IMAGE_TAG}) || true"
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKERHUB_USER}/backend:${IMAGE_TAG}) || true"
 
                     sh "docker rm -f \$(docker ps -aq --filter ancestor=${DOCKERHUB_USER}/frontend:${IMAGE_TAG}) || true"
                     sh "docker rm -f \$(docker ps -aq --filter ancestor=${DOCKERHUB_USER}/backend:${IMAGE_TAG}) || true"
-                    
 
-                    // Run new containers
                     echo 'Deploying frontend and backend services'
                     sh "docker run -d -p 8082:80 ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}"
                     sh "docker run -d -p 3001:3000 ${DOCKERHUB_USER}/backend:${IMAGE_TAG}"
